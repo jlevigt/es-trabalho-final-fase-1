@@ -50,6 +50,11 @@
         <configuration>
           <!-- Testes que falham são esperados: eles revelam defeitos do sistema. -->
           <testFailureIgnore>true</testFailureIgnore>
+          <!-- Garantia de reprodutibilidade independente do fuso horário da máquina -->
+          <systemPropertyVariables>
+            <user.timezone>UTC</user.timezone>
+            <file.encoding>UTF-8</file.encoding>
+          </systemPropertyVariables>
         </configuration>
       </plugin>
     </plugins>

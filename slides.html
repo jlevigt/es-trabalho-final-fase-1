@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Engenharia de Software — Fase 1: Testes Caixa-Preta (Biblioteca)</title>
+<style>
+  :root {
+    --bg-main: #0b1120;
+    --bg-card: #151f32;
+    --bg-inner: #0f172a;
+    --border-color: #26354a;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --accent-blue: #38bdf8;
+    --accent-indigo: #818cf8;
+    --badge-pass-bg: rgba(16, 185, 129, 0.15);
+    --badge-pass-border: #10b981;
+    --badge-pass-text: #34d399;
+    --badge-fail-bg: rgba(239, 68, 68, 0.15);
+    --badge-fail-border: #ef4444;
+    --badge-fail-text: #f87171;
+    --badge-info-bg: rgba(56, 189, 248, 0.15);
+    --badge-info-border: #38bdf8;
+    --badge-info-text: #38bdf8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  header {
+    background: #070b14;
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+  }
+
+  .repo-link {
+    color: var(--accent-blue);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .repo-link:hover { text-decoration: underline; }
+
+  .slide-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: clamp(12px, 2.5vw, 28px);
+    width: 100%;
+  }
+
+  .slide {
+    display: none;
+    width: 100%;
+    max-width: 1150px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: clamp(20px, 3.5vw, 36px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.45);
+    flex-direction: column;
+    gap: 16px;
+    animation: fadeIn 0.25s ease-in-out;
+  }
+
+  .slide.active { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Tipografia */
+  h1 { font-size: clamp(1.8rem, 3.5vw, 2.5rem); color: var(--accent-blue); line-height: 1.2; }
+  h2 { font-size: clamp(1.3rem, 2.4vw, 1.7rem); color: #e2e8f0; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3 { font-size: clamp(1rem, 1.8vw, 1.15rem); color: var(--accent-indigo); margin-bottom: 8px; }
+  p, li { font-size: clamp(0.9rem, 1.4vw, 1.02rem); color: #cbd5e1; line-height: 1.55; }
+  ul, ol { margin-left: 20px; }
+
+  /* Badges */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    font-family: monospace;
+  }
+  .badge-pass { background: var(--badge-pass-bg); border: 1px solid var(--badge-pass-border); color: var(--badge-pass-text); }
+  .badge-fail { background: var(--badge-fail-bg); border: 1px solid var(--badge-fail-border); color: var(--badge-fail-text); }
+  .badge-info { background: var(--badge-info-bg); border: 1px solid var(--badge-info-border); color: var(--badge-info-text); }
+
+  /* Cards e Grids Responsivos */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+    width: 100%;
+  }
+
+  .card {
+    background: var(--bg-inner);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .card-highlight { border-left: 4px solid var(--accent-blue); }
+  .card-fail-highlight { border-left: 4px solid var(--badge-fail-border); }
+
+  /* Blocos de Exemplo Objetivo */
+  .example-block {
+    background: #070d18;
+    border: 1px solid #1e293b;
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: clamp(0.85rem, 1.3vw, 0.95rem);
+    line-height: 1.6;
+    color: #e2e8f0;
+  }
+  .example-block .label { color: var(--text-muted); }
+  .example-block .val-expected { color: #34d399; font-weight: 600; }
+  .example-block .val-actual { color: #f87171; font-weight: 600; }
+  .example-block .val-pass { color: #38bdf8; font-weight: 600; }
+
+  /* Indicador de Resumo no rodapé do slide */
+  .slide-footer-metrics {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* Tabelas */
+  .table-responsive {
+    width: 100%;
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: clamp(0.82rem, 1.25vw, 0.92rem);
+    text-align: left;
+  }
+  th, td {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+  }
+  th { background: #070d18; color: var(--accent-blue); font-weight: 600; }
+  tr:nth-child(even) { background: rgba(255,255,255,0.015); }
+
+  /* Rodapé do Deck */
+  footer {
+    background: #070b14;
+    border-top: 1px solid var(--border-color);
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+  .progress-bar-bg {
+    width: 160px;
+    height: 6px;
+    background: var(--border-color);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent-blue);
+    transition: width 0.25s ease;
+  }
+
+  .nav-btn {
+    background: #1e293b;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover {
+    background: #334155;
+    border-color: var(--accent-blue);
+  }
+
+  @media (max-width: 768px) {
+    header, footer { padding: 10px 16px; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .slide-footer-metrics { flex-direction: column; align-items: flex-start; }
+    .progress-bar-bg { width: 100px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div><strong>Engenharia de Software (IFCE)</strong> &bull; Trabalho Final: Teste de Software</div>
+  <div><a class="repo-link" href="https://github.com/jlevigt/es-trabalho-final-fase-1" target="_blank" rel="noopener">jlevigt/es-trabalho-final-fase-1</a></div>
+</header>
+
+<div class="slide-container">
+
+  <!-- SLIDE 1: CAPA -->
+  <div class="slide active">
+    <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; gap:16px;">
+      <span class="badge badge-info">Fase 1 — Testes Caixa-Preta</span>
+      <h1>Teste de Software — Sistema de Biblioteca</h1>
+      <p style="color:var(--text-secondary); max-width:680px;">
+        Avaliação funcional formal por Partição de Equivalência e Análise de Valor-Limite fundamentada estritamente no Anexo A da especificação.
+      </p>
+      <div style="display:flex; gap:12px; margin-top:8px; flex-wrap:wrap; justify-content:center;">
+        <span class="badge badge-info">91 Testes JUnit 5</span>
+        <span class="badge badge-pass">57 Conformes</span>
+        <span class="badge badge-fail">34 Falhas Esperadas (Defeitos do JAR)</span>
+      </div>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:12px;">
+        Novembro de 2026 &bull; IFCE Campus Fortaleza
+      </p>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: FUNDAMENTAÇÃO E ESCOPO CAIXA-PRETA -->
+  <div class="slide">
+    <h2>1. Fundamentação e Escopo de Caixa-Preta</h2>
+    <div class="grid-2">
+      <div class="card card-highlight">
+        <h3>Princípio da Especificação como Única Fonte da Verdade</h3>
+        <ul>
+          <li>Na Fase 1, não há acesso ao código-fonte da aplicação (sistema entregue compilado em <code>lib/biblioteca-1.0.jar</code>).</li>
+          <li>Todas as asserções e classes de teste derivam exclusivamente do contrato formal contido no <strong>Anexo A</strong>.</li>
+          <li>Não há suposição sobre a implementação interna: avalia-se puramente o comportamento observável através da interface pública.</li>
+        </ul>
+      </div>
+      <div class="card card-fail-highlight">
+        <h3>Enquadramento Pedagógico das Falhas</h3>
+        <ul>
+          <li>O sistema sob teste foi intencionalmente fornecido pelo professor com defeitos não declarados.</li>
+          <li><strong>Uma falha na suíte de testes contra o JAR compilado é o resultado esperado</strong>: comprova a eficácia da técnica em detectar a divergência da especificação.</li>
+          <li>O Maven opera com <code>testFailureIgnore=true</code> para assegurar a execução integral de todos os casos.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: DISTRIBUIÇÃO DOS 91 TESTES -->
+  <div class="slide">
+    <h2>2. Distribuição Geral da Suíte de Testes</h2>
+    <p>A quantidade de 91 testes decorre da análise sistemática de variáveis válidas, inválidas e fronteiras de cada método:</p>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Método Sob Teste</th>
+            <th>Variáveis</th>
+            <th>Fundamentação Combinatória (Classes + Limites)</th>
+            <th>Testes</th>
+            <th>Falhas Esperadas</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>prazoDias</code></td><td>1</td><td>3 válidas + 1 inválida</td><td>4</td><td>1</td></tr>
+          <tr><td><code>dataDevolucao</code></td><td>2</td><td>(3 tipos &times; 3 dias calendário) + 2 fronteiras ano/mês + 3 nulos</td><td>14</td><td>5</td></tr>
+          <tr><td><code>limiteEmprestimos</code></td><td>1</td><td>3 válidas + 1 inválida</td><td>4</td><td>0</td></tr>
+          <tr><td><code>multaCentavos</code></td><td>2</td><td>4 inválidas + 10 Aluno + 11 Professor + 2 Visitante</td><td>27</td><td>13</td></tr>
+          <tr><td><code>podeEmprestar</code></td><td>4</td><td>3 inválidas + 7 Aluno + 2 Professor + 2 Visitante + 1 múltipla</td><td>15</td><td>6</td></tr>
+          <tr><td><code>podeRenovar</code></td><td>4</td><td>2 inválidas + 1 Visitante + 4 Aluno + 3 Professor + 3 restrições</td><td>13</td><td>2</td></tr>
+          <tr><td><code>multaTotalCentavos</code></td><td>2</td><td>5 inválidas + 1 vazia + 3 unitárias + 4 múltiplos</td><td>13</td><td>7</td></tr>
+          <tr><td><code>ExemploTest</code></td><td>—</td><td>Teste de demonstração inicial do kit</td><td>1</td><td>0</td></tr>
+          <tr style="font-weight:600; background:rgba(56,189,248,0.08);">
+            <td colspan="3">Total da Suíte de Testes</td><td>91</td><td>34</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: MÉTODO 1 - prazoDias -->
+  <div class="slide">
+    <h2>
+      <span>Método 1</span>
+      <span class="badge badge-info">int prazoDias(TipoUsuario tipo)</span>
+    </h2>
+    <div class="grid-2">
+      <div class="card card-highlight">
+        <h3>Regra da Especificação (Anexo A)</h3>
+        <p>Devolve o prazo regular de empréstimo: <strong>14 dias</strong> para Aluno, <strong>30 dias</strong> para Professor e <strong>7 dias</strong> para Visitante. Tipo nulo lança <code>IllegalArgumentException</code>.</p>
+        <h3>Variáveis & Multiplicação dos Casos</h3>
+        <ul>
+          <li><strong>Parâmetro:</strong> <code>TipoUsuario tipo</code></li>
+          <li>Partições válidas: <code>ALUNO</code>, <code>PROFESSOR</code>, <code>VISITANTE</code> (3 casos).</li>
+          <li>Partição inválida: <code>null</code> (1 caso).</li>
+          <li><strong>Cálculo:</strong> $3 \text{ válidas} + 1 \text{ inválida} = \mathbf{4\text{ testes}}$.</li>
+        </ul>
+      </div>
+      <div class="card card-fail-highlight">
+        <h3>Exemplo Objetivo de Verificação</h3>
+        <div class="example-block">
+          <div><span class="label">Entrada:  </span>tipo = TipoUsuario.VISITANTE</div>
+          <div><span class="label">Esperado: </span><span class="val-expected">7 dias</span></div>
+          <div><span class="label">Obtido:   </span><span class="val-actual">10 dias</span></div>
+        </div>
+        <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:8px;">
+          O sistema emitiu 10 dias para Visitante, contrariando a especificação formal que prescreve estritamente 7 dias.
+        </p>
+      </div>
+    </div>
+    <div class="slide-footer-metrics">
+      <div><strong>Indicador de Testes:</strong> 4 casos executados</div>
+      <div><span class="badge badge-pass">3 Conformes</span> &nbsp; <span class="badge badge-fail">1 Falha Esperada (Revela Defeito)</span></div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: MÉTODO 2 - dataDevolucao -->
+  <div class="slide">
+    <h2>
+      <span>Método 2</span>
+      <span class="badge badge-info">LocalDate dataDevolucao(LocalDate retirada, TipoUsuario tipo)</span>
+    </h2>
+    <div class="grid-2">
+      <div class="card card-highlight">
+        <h3>Regra da Especificação (Anexo A)</h3>
+        <p>Soma o prazo do tipo à data de retirada. Se o resultado coincidir com um <strong>domingo</strong>, a devolução posterga para a <strong>segunda-feira seguinte</strong>. O sábado é dia normal. Retirada ou tipo nulos lançam <code>IllegalArgumentException</code>.</p>
+        <h3>Variáveis & Multiplicação dos Casos</h3>
+        <ul>
+          <li>3 tipos &times; 3 dias de calendário (dia útil, sábado normal, domingo postergado) = <strong>9 testes</strong>.</li>
+          <li>Fronteiras de virada de mês e virada de ano = <strong>2 testes</strong>.</li>
+          <li>Partições inválidas (retirada nula, tipo nulo, ambos nulos) = <strong>3 testes</strong>.</li>
+          <li><strong>Cálculo:</strong> $(3 \times 3) + 2 + 3 = \mathbf{14\text{ testes}}$.</li>
+        </ul>
+      </div>
+      <div class="card card-fail-highlight">
+        <h3>Exemplo Objetivo de Verificação</h3>
+        <div class="example-block">
+          <div><span class="label">Entrada:  </span>retirada = 01/05/2026 (sex), tipo = PROFESSOR (+30 dias)</div>
+          <div><span class="label">Esperado: </span><span class="val-expected">01/06/2026 (segunda-feira)</span></div>
+          <div><span class="label">Obtido:   </span><span class="val-actual">31/05/2026 (domingo mantido sem postergação)</span></div>
+        </div>
+        <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:8px;">
+          A devolução de Professor em domingo não sofreu postergação. As devoluções de Visitante sofreram acréscimo de 3 dias decorrente da divergência em <code>prazoDias</code>.
+        </p>
+      </div>
+    </div>
+    <div class="slide-footer-metrics">
+      <div><strong>Indicador de Testes:</strong> 14 casos executados</div>
+      <div><span class="badge badge-pass">9 Conformes</span> &nbsp; <span class="badge badge-fail">5 Falhas Esperadas (Revelam Defeitos)</span></div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: MÉTODO 3 - limiteEmprestimos -->
+  <div class="slide">
+    <h2>
+      <span>Método 3</span>
+      <span class="badge badge-info">int limiteEmprestimos(TipoUsuario tipo)</span>
+    </h2>
+    <div class="grid-2">
+      <div class="card card-highlight">
+        <h3>Regra da Especificação (Anexo A)</h3>
+        <p>Devolve quantos empréstimos simultâneos o usuário pode manter: <strong>3</strong> para Aluno, <strong>8</strong> para Professor e <strong>1</strong> para Visitante. Tipo nulo lança <code>IllegalArgumentException</code>.</p>
+        <h3>Variáveis & Multiplicação dos Casos</h3>
+        <ul>
+          <li><strong>Parâmetro:</strong> <code>TipoUsuario tipo</code></li>
+          <li>Partições válidas: <code>ALUNO</code>, <code>PROFESSOR</code>, <code>VISITANTE</code> (3 casos).</li>
+          <li>Partição inválida: <code>null</code> (1 caso).</li>
+          <li><strong>Cálculo:</strong> $3 \text{ válidas} + 1 \text{ inválida} = \mathbf{4\text{ testes}}$.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Exemplo Objetivo de Verificação (Conforme)</h3>
+        <div class="example-block">
+          <div><span class="label">Entrada:  </span>tipo = TipoUsuario.PROFESSOR</div>
+          <div><span class="label">Esperado: </span><span class="val-expected">8</span></div>
+          <div><span class="label">Obtido:   </span><span class="val-pass">8 (Conforme com a especificação)</span></div>
+        </div>
+        <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:8px;">
+          Todos os valores de limites e o lançamento de exceção para valor nulo operam em estrita conformidade com o Anexo A.
+        </p>
+      </div>
+    </div>
+    <div class="slide-footer-metrics">
+      <div><strong>Indicador de Testes:</strong> 4 casos executados</div>
+      <div><span class="badge badge-pass">4 Conformes</span> &nbsp; <span class="badge badge-pass">0 Falhas (100% Conforme)</span></div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: MÉTODO 4 - multaCentavos (Regras) -->
+  <div class="slide">
+    <h2>
+      <span>Método 4 (Parte 1/2)</span>
+      <span class="badge badge-info">int multaCentavos(TipoUsuario tipo, int diasAtraso)</span>
+    </h2>
+    <div class="grid-2">
+      <div class="card card-highlight">
+        <h3>Regra da Especificação (Anexo A)</h3>
+        <ul>
+          <li><strong>Carência:</strong> Professores têm os 3 primeiros dias de atraso isentos (0 centavos). Demais perfis pagam todos os dias.</li>
+          <li><strong>Alíquotas:</strong> 1º ao 10º dia cobrado = R$ 1,00/dia (100 centavos). 11º dia cobrado em diante = R$ 2,00/dia (200 centavos).</li>
+          <li><strong>Teto:</strong> Multa nunca ultrapassa R$ 50,00 (5000 centavos).</li>
+          <li>Atraso negativo ou tipo nulo lança <code>IllegalArgumentException</code>.</li>
+        </ul>
+      </div>
+      <div class="card card-highlight">
+        <h3>Variáveis & Multiplicação dos Casos</h3>
+        <ul>
+          <li><strong>Partições Inválidas:</strong> atraso negativo (-1 e -50), tipo nulo e ambos inválidos = <strong>4 testes</strong>.</li>
+          <li><strong>Aluno (sem carência):</strong> atraso 0, limites da faixa 1 (1, 5, 10), limites da faixa 2 (11, 12, 29) e limites do teto (30, 31, 100) = <strong>10 testes</strong>.</li>
+          <li><strong>Professor (com carência):</strong> atraso 0, carência (1, 2, 3), faixa 1 (4, 8, 13), faixa 2 (14, 32) e teto (33, 34) = <strong>11 testes</strong>.</li>
+          <li><strong>Visitante:</strong> confirmação de alíquotas (1, 12 dias) = <strong>2 testes</strong>.</li>
+          <li><strong>Cálculo:</strong> $4 + 10 + 11 + 2 = \mathbf{27\text{ testes}}$.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="slide-footer-metrics">
+      <div><strong>Estrutura Combinatória:</strong> 27 casos derivados de PE e AVL cobrindo carência, faixas e teto</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: MÉTODO 4 - multaCentavos (Exemplos) -->
+  <div class="slide">
+    <h2>
+      <span>Método 4 (Parte 2/2)</span>
+      <span class="badge badge-fail">multaCentavos: Falhas Reveladas</span>
+    </h2>
+    <div class="grid-2">
+      <div class="card card-fail-highlight">
+        <h3>Fronteira de Carência (Professor)</h3>
+        <div class="example-block">
+          <div><span class="label">Entrada:  </span>tipo = PROFESSOR, diasAtraso = 3</div>
+          <div><span class="label">Esperado: </span><span class="val-expected">0 centavos (dentro da carência de 3 dias)</span></div>
+          <div><span class="label">Obtido:   </span><span class="val-actual">100 centavos</span></div>
+        </div>
+      </div>
+      <div class="card card-fail-highlight">
+        <h3>Transição no 11º Dia Cobrado</h3>
+        <div class="example-block">
+          <div><span class="label">Entrada:  </span>tipo = ALUNO, diasAtraso = 11</div>
+          <div><span class="label">Esperado: </span><span class="val-expected">1200 centavos (10 &times; 100 + 1 &times; 200)</span></div>
+          <div><span class="label">Obtido:   </span><span class="val-actual">1100 centavos (cobrou taxa de R$ 1,00)</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top: -4px;">
+      <div class="card card-fail-highlight">
+        <h3>Teto Máximo por Empréstimo</h3>
+        <div class="example-block">
+          <div><span class="label">Entrada:  </span>tipo = ALUNO, diasAtraso = 31</div>
+          <div><span class="label">Esperado: </span><span class="val-expected">5000 centavos (teto de R$ 50,00)</span></div>
+          <div><span class="label">Obtido:   </span><span class="val-actual">5200 centavos (teto não aplicado)</span></div>
+        </div>
+      </div>
+      <div class="card card-fail-highlight">
+        <h3>Validação de Atraso Negativo</h3>
+        <div class="example-block">
+          <div><span class="label">Entrada:  </span>tipo = ALUNO, diasAtraso = -1</div>
+          <div><span class="label">Esperado: </span><span class="val-expected">IllegalArgumentException</span></div>
+          <div><span class="label">Obtido:   </span><span class="val-actual">Nenhuma exceção lançada</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer-metrics">
+      <div><strong>Indicador de Testes:</strong> 27 casos executados</div>
+      <div><span class="badge badge-pass">14 Conformes</span> &nbsp; <span class="badge badge-fail">13 Falhas Esperadas (Revelam Defeitos)</span></div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: MÉTODO 5 - podeEmprestar -->
+  <div class="slide">
+    <h2>
+      <span>Método 5</span>
+      <span class="badge badge-info">boolean podeEmprestar(TipoUsuario, int, int, boolean)</span>
+    </h2>
+    <div class="grid-2">
+      <div class="card card-highlight">
+        <h3>Regra da Especificação (Anexo A)</h3>
+        <p>Retorna <code>true</code> somente se as 3 condições forem válidas juntas:</p>
+        <ol>
+          <li><code>emprestimosAtivos &lt; limiteEmprestimos(tipo)</code></li>
+          <li><code>multaPendenteCentavos &lt;= 1000</code> (máximo R$ 10,00)</li>
+          <li><code>!possuiAtraso</code> (não possui empréstimo em atraso)</li>
+        </ol>
+        <p style="font-size:0.85rem; color:var(--text-muted);">Negativos ou tipo nulo lançam <code>IllegalArgumentException</code>.</p>
+        <h3>Variáveis & Multiplicação dos Casos</h3>
+        <ul>
+          <li>3 inválidas + 7 Aluno (zerado, limites ativos e multas, atraso) + 2 Professor + 2 Visitante + 1 múltipla.</li>
+          <li><strong>Cálculo:</strong> $3 + 7 + 2 + 2 + 1 = \mathbf{15\text{ testes}}$.</li>
+        </ul>
+      </div>
+      <div class="card card-fail-highlight">
+        <h3>Exemplos Objetivos de Verificação</h3>
+        <div class="example-block">
+          <div><span class="label">Entrada:  </span>ALUNO, ativos = 3, multa = 0, atraso = false</div>
+          <div><span class="label">Esperado: </span><span class="val-expected">false (atingiu o limite de 3 empréstimos)</span></div>
+          <div><span class="label">Obtido:   </span><span class="val-actual">true</span></div>
+        </div>
+        <div class="example-block" style="margin-top:8px;">
+          <div><span class="label">Entrada:  </span>ALUNO, ativos = 0, multa = 1001, atraso = false</div>
+          <div><span class="label">Esperado: </span><span class="val-expected">false (multa superior a R$ 10,00)</span></div>
+          <div><span class="label">Obtido:   </span><span class="val-actual">true</span></div>
+        </div>
+        <div class="example-block" style="margin-top:8px;">
+          <div><span class="label">Entrada:  </span>ALUNO, ativos = 0, multa = 0, atraso = true</div>
+          <div><span class="label">Esperado: </span><span class="val-expected">false (possui atraso registrado)</span></div>
+          <div><span class="label">Obtido:   </span><span class="val-actual">true</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer-metrics">
+      <div><strong>Indicador de Testes:</strong> 15 casos executados</div>
+      <div><span class="badge badge-pass">9 Conformes</span> &nbsp; <span class="badge badge-fail">6 Falhas Esperadas (Revelam Defeitos)</span></div>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: MÉTODO 6 - podeRenovar -->
+  <div class="slide">
+    <h2>
+      <span>Método 6</span>
+      <span class="badge badge-info">boolean podeRenovar(TipoUsuario, int, boolean, boolean)</span>
+    </h2>
+    <div class="grid-2">
+      <div class="card card-highlight">
+        <h3>Regra da Especificação (Anexo A)</h3>
+        <ul>
+          <li><strong>Visitantes nunca renovam</strong> (sempre <code>false</code>).</li>
+          <li><strong>Alunos</strong> renovam até 2 vezes (feitas = 0 e 1 podem renovar; 2 já atingiu o teto).</li>
+          <li><strong>Professores</strong> renovam até 3 vezes (feitas = 0, 1 e 2 podem; 3 já atingiu o teto).</li>
+          <li>Em qualquer caso, só renova se obra não tiver reserva e não estiver em atraso.</li>
+        </ul>
+        <h3>Variáveis & Multiplicação dos Casos</h3>
+        <ul>
+          <li>2 inválidas + 1 Visitante + 4 Aluno (renovações 0, 1, 2, 3) + 3 Professor (0, 2, 3) + 3 restrições (reserva/atraso).</li>
+          <li><strong>Cálculo:</strong> $2 + 1 + 4 + 3 + 3 = \mathbf{13\text{ testes}}$.</li>
+        </ul>
+      </div>
+      <div class="card card-fail-highlight">
+        <h3>Exemplos Objetivos de Verificação</h3>
+        <div class="example-block">
+          <div><span class="label">Entrada:  </span>VISITANTE, renovacoes = 0, reserva = false, atraso = false</div>
+          <div><span class="label">Esperado: </span><span class="val-expected">false (visitantes nunca renovam)</span></div>
+          <div><span class="label">Obtido:   </span><span class="val-actual">true</span></div>
+        </div>
+        <div class="example-block" style="margin-top:8px;">
+          <div><span class="label">Entrada:  </span>PROFESSOR, renovacoes = 3, reserva = false, atraso = false</div>
+          <div><span class="label">Esperado: </span><span class="val-expected">false (já renovou 3 vezes, atingiu o teto)</span></div>
+          <div><span class="label">Obtido:   </span><span class="val-actual">true</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer-metrics">
+      <div><strong>Indicador de Testes:</strong> 13 casos executados</div>
+      <div><span class="badge badge-pass">11 Conformes</span> &nbsp; <span class="badge badge-fail">2 Falhas Esperadas (Revelam Defeitos)</span></div>
+    </div>
+  </div>
+
+  <!-- SLIDE 11: MÉTODO 7 - multaTotalCentavos -->
+  <div class="slide">
+    <h2>
+      <span>Método 7</span>
+      <span class="badge badge-info">int multaTotalCentavos(TipoUsuario tipo, int[] diasAtraso)</span>
+    </h2>
+    <div class="grid-2">
+      <div class="card card-highlight">
+        <h3>Regra da Especificação (Anexo A)</h3>
+        <ul>
+          <li>Soma a multa de cada empréstimo da lista (cada uma com teto de R$ 50,00).</li>
+          <li>O total nunca passa de R$ 100,00 (10000 centavos).</li>
+          <li>Lista vazia resulta em total 0.</li>
+          <li>Lista nula, elemento negativo ou tipo nulo lançam <code>IllegalArgumentException</code>.</li>
+        </ul>
+        <h3>Variáveis & Multiplicação dos Casos</h3>
+        <ul>
+          <li>5 inválidas (nulos e elementos negativos) + 1 vazia + 3 unitárias + 4 múltiplos empréstimos.</li>
+          <li><strong>Cálculo:</strong> $5 + 1 + 3 + 4 = \mathbf{13\text{ testes}}$.</li>
+        </ul>
+      </div>
+      <div class="card card-fail-highlight">
+        <h3>Exemplos Objetivos de Verificação</h3>
+        <div class="example-block">
+          <div><span class="label">Entrada:  </span>ALUNO, diasAtraso = [5] (1 empréstimo de 5 dias)</div>
+          <div><span class="label">Esperado: </span><span class="val-expected">500 centavos</span></div>
+          <div><span class="label">Obtido:   </span><span class="val-actual">0 centavos</span></div>
+        </div>
+        <div class="example-block" style="margin-top:8px;">
+          <div><span class="label">Entrada:  </span>ALUNO, diasAtraso = [10, 10]</div>
+          <div><span class="label">Esperado: </span><span class="val-expected">2000 centavos (1000 + 1000)</span></div>
+          <div><span class="label">Obtido:   </span><span class="val-actual">1000 centavos (primeiro empréstimo ignorado)</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer-metrics">
+      <div><strong>Indicador de Testes:</strong> 13 casos executados</div>
+      <div><span class="badge badge-pass">6 Conformes</span> &nbsp; <span class="badge badge-fail">7 Falhas Esperadas (Revelam Defeitos)</span></div>
+    </div>
+  </div>
+
+  <!-- SLIDE 12: REPRODUTIBILIDADE DE AMBIENTE -->
+  <div class="slide">
+    <h2>3. Reprodutibilidade de Ambiente e Fuso Horário</h2>
+    <div class="grid-2">
+      <div class="card card-highlight">
+        <h3>Independência Estrita de Fuso Horário (Timezone)</h3>
+        <ul>
+          <li>O método <code>dataDevolucao</code> opera exclusivamente sobre <code>java.time.LocalDate</code>.</li>
+          <li>Por definição no Java Time (JSR-310), <code>LocalDate</code> representa uma data pura sob ISO-8601 (ano, mês, dia) sem fuso horário e sem componente de hora.</li>
+          <li>Aritmética de dias (<code>plusDays</code>) e verificação de domingo (<code>getDayOfWeek</code>) produzem o mesmo resultado exato independente do relógio do sistema operacional ou horário de verão.</li>
+        </ul>
+      </div>
+      <div class="card card-highlight">
+        <h3>Valores Monetários e Blindagem no Maven</h3>
+        <ul>
+          <li>Cálculos em centavos utilizam inteiros primitivos (<code>int</code>), eliminando flutuações de ponto flutuante e configurações regionais de moeda (<code>Locale</code>).</li>
+          <li>Para garantir 100% de reproducibilidade em qualquer máquina do professor ou ambiente de CI, o <code>pom.xml</code> foi explicitamente configurado com:
+            <br><code>&lt;user.timezone&gt;UTC&lt;/user.timezone&gt;</code> e <code>&lt;file.encoding&gt;UTF-8&lt;/file.encoding&gt;</code>.
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 13: CONCLUSÃO DA FASE 1 -->
+  <div class="slide">
+    <h2>4. Conclusão da Fase 1 e Prontidão para a Arguição</h2>
+    <div class="grid-2">
+      <div class="card card-highlight">
+        <h3>Entregáveis da Fase 1 Concluídos</h3>
+        <ul>
+          <li><strong>Repositório Público no GitHub:</strong> <a class="repo-link" href="https://github.com/jlevigt/es-trabalho-final-fase-1" target="_blank" rel="noopener">es-trabalho-final-fase-1</a></li>
+          <li><strong>Suíte de Testes Caixa-Preta:</strong> 91 casos automatizados em JUnit 5.</li>
+          <li><strong>Documentação Completa:</strong> <code>PLANO-DE-TESTES.md</code>, <code>DEFEITOS.md</code> (34 falhas catalogadas) e <code>USO-DE-IA.md</code>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Preparação para a Arguição Individual</h3>
+        <ul>
+          <li>Cada membro da equipe está preparado para justificar de qual classe ou limite derivou cada teste.</li>
+          <li>Domínio pleno das fronteiras: sábado vs domingo, carência vs 1º dia cobrado, transição no 11º dia e limites de teto.</li>
+          <li>Capacidade de raciocínio imediato sobre variações hipotéticas nas regras da especificação.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="progress-wrap">
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressBar"></div>
+    </div>
+    <span id="slideCounter">Slide 1 de 13</span>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button class="nav-btn" onclick="prevSlide()">&#8592; Anterior</button>
+    <button class="nav-btn" onclick="nextSlide()">Próximo &#8594;</button>
+  </div>
+</footer>
+
+<script>
+  let currentSlide = 0;
+  const slides = document.querySelectorAll('.slide');
+  const counter = document.getElementById('slideCounter');
+  const bar = document.getElementById('progressBar');
+
+  function showSlide(index) {
+    slides.forEach((s, i) => s.classList.toggle('active', i === index));
+    currentSlide = index;
+    counter.textContent = `Slide ${currentSlide + 1} de ${slides.length}`;
+    bar.style.width = `${((currentSlide + 1) / slides.length) * 100}%`;
+  }
+
+  function nextSlide() {
+    if (currentSlide < slides.length - 1) showSlide(currentSlide + 1);
+  }
+
+  function prevSlide() {
+    if (currentSlide > 0) showSlide(currentSlide - 1);
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      nextSlide();
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      prevSlide();
+    } else if (e.key === 'Home') {
+      showSlide(0);
+    } else if (e.key === 'End') {
+      showSlide(slides.length - 1);
+    }
+  });
+
+  showSlide(0);
+</script>
+
+</body>
+</html>
