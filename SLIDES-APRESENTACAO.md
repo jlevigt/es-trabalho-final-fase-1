@@ -31,7 +31,7 @@ footer: "Projeto Biblioteca — Sistema de Testes"
 
 ---
 
-# 2. Panorama Geral: 86 Testes da Suíte
+# 2. Panorama Geral: 84 Testes da Suíte
 
 Os testes estão separados em arquivos dedicados por método em `src/test/java/br/edu/biblioteca/`:
 
@@ -41,11 +41,10 @@ Os testes estão separados em arquivos dedicados por método em `src/test/java/b
 | `DataDevolucaoTest.java` | `dataDevolucao` | (3 tipos &times; 3 dias calendário) + 3 nulos | **12** | 4 |
 | `LimiteEmprestimosTest.java` | `limiteEmprestimos` | 3 válidas + 1 inválida (null) | **4** | 0 |
 | `MultaCentavosTest.java` | `multaCentavos` | 3 inválidas + 9 Aluno + 10 Professor + 2 Visitante | **24** | 11 |
-| `PodeEmprestarTest.java` | `podeEmprestar` | 3 inválidas + 7 Aluno + 2 Prof + 2 Vis + 1 múltipla | **15** | 6 |
+| `PodeEmprestarTest.java` | `podeEmprestar` | 3 inválidas + 7 Aluno + 2 Prof + 2 Vis | **14** | 6 |
 | `PodeRenovarTest.java` | `podeRenovar` | 2 inválidas + 1 Vis + 4 Aluno + 3 Prof + 3 restrições | **13** | 2 |
 | `MultaTotalCentavosTest.java` | `multaTotalCentavos` | 5 inválidas + 1 vazia + 3 unitárias + 4 múltiplos | **13** | 7 |
-| `ExemploTest.java` | — | Teste de demonstração inicial do kit | **1** | 0 |
-| **Total Geral** | — | — | **86** | **31** |
+| **Total Geral** | — | — | **84** | **31** |
 
 ---
 
@@ -170,7 +169,7 @@ Obtido:   5200 centavos
 Retorna `true` SOMENTE SE: (1) `emprestimosAtivos < limite`, (2) `multaPendenteCentavos <= 1000` (R$ 10,00) e (3) `!possuiAtraso`. Negativos ou nulo lançam exceção.
 
 ### De onde saíram os testes?
-- 3 inválidas + 7 Aluno (0, multas 999/1000/1001, ativos 2/3/4, atraso true) + 2 Professor + 2 Visitante + 1 múltipla = **15 testes**.
+- 3 inválidas + 7 Aluno (0, multas 999/1000/1001, ativos 2/3/4, atraso true) + 2 Professor + 2 Visitante = **14 testes**.
 
 ### Exemplos Objetivos de Verificação
 ```text
@@ -185,7 +184,7 @@ Esperado: false (multa excede R$ 10,00)
 Obtido:   true
 ```
 
-- **Indicador:** 15 testes | 9 conformes | **6 falhas esperadas** (ativos no limite, tolerância de multa, atraso e negativos).
+- **Indicador:** 14 testes | 8 conformes | **6 falhas esperadas** (ativos no limite, tolerância de multa, atraso e negativos).
 
 ---
 
@@ -263,7 +262,7 @@ Obtido:   1000 centavos (primeiro elemento ignorado)
 
 ### Entregáveis da Fase 1 Concluídos:
 - Repositório Git público no GitHub: [`jlevigt/es-trabalho-final-fase-1`](https://github.com/jlevigt/es-trabalho-final-fase-1).
-- Suíte de 86 testes automatizados com arquivos separados por método.
+- Suíte de 84 testes automatizados com arquivos separados por método.
 - Documentação técnica completa: `PLANO-DE-TESTES.md`, `DEFEITOS.md` e `USO-DE-IA.md`.
 
 ### Raciocínio para a Arguição:

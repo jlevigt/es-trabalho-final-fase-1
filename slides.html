@@ -261,7 +261,7 @@
         Partição de Equivalência (PE) e Análise de Valor-Limite (AVL) aplicadas sobre a especificação do Sistema de Biblioteca
       </h2>
       <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:10px;">
-        <span class="badge badge-info">86 Testes Automatizados</span>
+        <span class="badge badge-info">84 Testes Automatizados</span>
         <span class="badge badge-pass">55 Conformes</span>
         <span class="badge badge-fail">31 Falhas Esperadas (Defeitos Detectados)</span>
       </div>
@@ -301,11 +301,11 @@
     </div>
   </div>
 
-  <!-- SLIDE 3: DISTRIBUIÇÃO DA SUÍTE (86 TESTES) -->
+  <!-- SLIDE 3: DISTRIBUIÇÃO DA SUÍTE (84 TESTES) -->
   <div class="slide">
     <div class="method-header">
       <div class="method-title-badge">Panorama da Suíte</div>
-      <div class="method-signature">Distribuição dos 86 Testes por Arquivo Dedicado</div>
+      <div class="method-signature">Distribuição dos 84 Testes por Arquivo Dedicado</div>
     </div>
     <div class="table-responsive">
       <table>
@@ -323,12 +323,11 @@
           <tr><td><code>DataDevolucaoTest.java</code></td><td><code>dataDevolucao</code></td><td>(3 tipos &times; 3 dias calendário) + 3 nulos</td><td>12</td><td>4</td></tr>
           <tr><td><code>LimiteEmprestimosTest.java</code></td><td><code>limiteEmprestimos</code></td><td>3 válidas + 1 inválida (null)</td><td>4</td><td>0</td></tr>
           <tr><td><code>MultaCentavosTest.java</code></td><td><code>multaCentavos</code></td><td>3 inválidas + 9 Aluno + 10 Professor + 2 Visitante</td><td>24</td><td>11</td></tr>
-          <tr><td><code>PodeEmprestarTest.java</code></td><td><code>podeEmprestar</code></td><td>3 inválidas + 7 Aluno + 2 Prof + 2 Vis + 1 múltipla</td><td>15</td><td>6</td></tr>
+          <tr><td><code>PodeEmprestarTest.java</code></td><td><code>podeEmprestar</code></td><td>3 inválidas + 7 Aluno + 2 Prof + 2 Vis</td><td>14</td><td>6</td></tr>
           <tr><td><code>PodeRenovarTest.java</code></td><td><code>podeRenovar</code></td><td>2 inválidas + 1 Vis + 4 Aluno + 3 Prof + 3 restrições</td><td>13</td><td>2</td></tr>
           <tr><td><code>MultaTotalCentavosTest.java</code></td><td><code>multaTotalCentavos</code></td><td>5 inválidas + 1 vazia + 3 unitárias + 4 múltiplos</td><td>13</td><td>7</td></tr>
-          <tr><td><code>ExemploTest.java</code></td><td>—</td><td>Teste de demonstração inicial do kit</td><td>1</td><td>0</td></tr>
           <tr style="font-weight:700; background:rgba(88,166,255,0.08);">
-            <td colspan="3">Total Consolidado da Suíte</td><td>86</td><td>31</td>
+            <td colspan="3">Total Consolidado da Suíte</td><td>84</td><td>31</td>
           </tr>
         </tbody>
       </table>
@@ -554,7 +553,7 @@
         <p style="font-size:0.88rem; color:var(--text-muted);">Negativos ou tipo nulo lançam <code>IllegalArgumentException</code>.</p>
         <h3>De onde saíram os testes?</h3>
         <ul>
-          <li>3 inválidas + 7 Aluno (0, multas 999/1000/1001, ativos 2/3/4, atraso true) + 2 Professor + 2 Visitante + 1 múltipla = <strong>15 testes</strong>.</li>
+          <li>3 inválidas + 7 Aluno (0, multas 999/1000/1001, ativos 2/3/4, atraso true) + 2 Professor + 2 Visitante = <strong>14 testes</strong>.</li>
         </ul>
       </div>
       <div class="card">

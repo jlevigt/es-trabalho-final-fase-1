@@ -143,7 +143,6 @@ Retorna `true` SOMENTE SE: (1) `emprestimosAtivos < limite`, (2) `multaPendenteC
 | CT-PE-12 | `professorAtingiuLimiteEmprestimos()` | AVL | PROFESSOR, 8, 0, false | `false` |
 | CT-PE-13 | `visitanteValido()` | AVL | VISITANTE, 0, 1000, false | `true` |
 | CT-PE-14 | `visitanteAtingiuLimite()` | AVL | VISITANTE, 1, 0, false | `false` |
-| CT-PE-15 | `multiplasViolacoes()` | PE | ALUNO, 3, 1001, true | `false` |
 
 ---
 
@@ -189,8 +188,24 @@ Soma a multa de cada empréstimo da lista. O total nunca ultrapassa R$ 100,00 (1
 | CT-MT-06 | `listaVaziaRetornaZero()` | PE | ALUNO/PROF/VIS, `[]` | `0` |
 | CT-MT-07 | `umEmprestimoSemAtraso()` | AVL | ALUNO, `[0]` | `0` |
 | CT-MT-08 | `umEmprestimoAluno5Dias()` | PE | ALUNO, `[5]` | `500` |
-| CT-MT-09 | `emprestimoIndividualRespeitaTetoIndividual()` | AVL | ALUNO, `[40]` | `5000` (teto individual) |
+| CT-MT-09 | `emprestimoIndividualRespeitaTetoIndividual()` | PE | ALUNO, `[40]` | `5000` (teto individual) |
 | CT-MT-10 | `multiplosEmprestimosAlunoAbaixoDoTeto()` | PE | ALUNO, `[10, 10]` | `2000` |
 | CT-MT-11 | `multiplosEmprestimosProfessorCarencia()` | PE | PROFESSOR, `[3, 4]` | `100` |
 | CT-MT-12 | `somaExatamenteNoTetoGlobal()` | AVL | ALUNO, `[30, 30]` | `10000` (teto global exato) |
-| CT-MT-13 | `somaUltrapassaTetoGlobal()` | AVL | ALUNO, `[30, 30, 30]` | `10000` (teto global excedido) |
+| CT-MT-13 | `somaUltrapassaTetoGlobal()` | PE | ALUNO, `[30, 30, 30]` | `10000` (teto global excedido) |
+
+---
+
+## 3. Resumo Consolidado da Suíte de Testes
+
+| Arquivo de Teste | Método Coberto | Testes Executados | Defeitos Revelados (Falhas) |
+|---|---|:---:|:---:|
+| `PrazoDiasTest.java` | `prazoDias` | 4 | 1 |
+| `DataDevolucaoTest.java` | `dataDevolucao` | 12 | 4 |
+| `LimiteEmprestimosTest.java` | `limiteEmprestimos` | 4 | 0 |
+| `MultaCentavosTest.java` | `multaCentavos` | 24 | 11 |
+| `PodeEmprestarTest.java` | `podeEmprestar` | 14 | 6 |
+| `PodeRenovarTest.java` | `podeRenovar` | 13 | 2 |
+| `MultaTotalCentavosTest.java` | `multaTotalCentavos` | 13 | 7 |
+| **Total Geral da Suíte** | **7 métodos** | **84** | **31** |
+

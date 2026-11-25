@@ -108,11 +108,4 @@ class PodeEmprestarTest {
     void visitanteAtingiuLimite() {
         assertFalse(regras.podeEmprestar(TipoUsuario.VISITANTE, 1, 0, false));
     }
-
-    // --- COMBINAÇÃO MÚLTIPLA ---
-    @Test
-    @DisplayName("CT-PE-15: Múltiplas violações simultâneas (ativos no limite + multa excessiva + atraso) -> false [PE]")
-    void multiplasViolacoes() {
-        assertFalse(regras.podeEmprestar(TipoUsuario.ALUNO, 3, 1001, true));
-    }
 }

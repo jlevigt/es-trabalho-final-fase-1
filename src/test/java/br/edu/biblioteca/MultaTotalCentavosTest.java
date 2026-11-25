@@ -76,7 +76,7 @@ class MultaTotalCentavosTest {
     }
 
     @Test
-    @DisplayName("CT-MT-09: Empréstimo individual além de R$ 50,00 [40] respeita teto individual de 5000 [AVL]")
+    @DisplayName("CT-MT-09: Empréstimo individual além de R$ 50,00 [40] respeita teto individual de 5000 [PE]")
     void emprestimoIndividualRespeitaTetoIndividual() {
         assertEquals(5000, regras.multaTotalCentavos(TipoUsuario.ALUNO, new int[]{40}));
     }
@@ -101,7 +101,7 @@ class MultaTotalCentavosTest {
     }
 
     @Test
-    @DisplayName("CT-MT-13: Três empréstimos [30, 30, 30] cuja soma daria 15000 -> limitado ao teto global de 10000 centavos [AVL]")
+    @DisplayName("CT-MT-13: Três empréstimos [30, 30, 30] cuja soma daria 15000 -> limitado ao teto global de 10000 centavos [PE]")
     void somaUltrapassaTetoGlobal() {
         assertEquals(10000, regras.multaTotalCentavos(TipoUsuario.ALUNO, new int[]{30, 30, 30}));
     }
