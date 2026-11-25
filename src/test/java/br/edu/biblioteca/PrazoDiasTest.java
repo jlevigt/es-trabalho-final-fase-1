@@ -18,25 +18,25 @@ class PrazoDiasTest {
     }
 
     @Test
-    @DisplayName("CT-PD-01: Aluno deve ter prazo de 14 dias")
+    @DisplayName("CT-PD-01: Aluno deve ter prazo de 14 dias [PE]")
     void prazoAluno() {
         assertEquals(14, regras.prazoDias(TipoUsuario.ALUNO));
     }
 
     @Test
-    @DisplayName("CT-PD-02: Professor deve ter prazo de 30 dias")
+    @DisplayName("CT-PD-02: Professor deve ter prazo de 30 dias [PE]")
     void prazoProfessor() {
         assertEquals(30, regras.prazoDias(TipoUsuario.PROFESSOR));
     }
 
     @Test
-    @DisplayName("CT-PD-03: Visitante deve ter prazo de 7 dias")
+    @DisplayName("CT-PD-03: Visitante deve ter prazo de 7 dias [PE]")
     void prazoVisitante() {
         assertEquals(7, regras.prazoDias(TipoUsuario.VISITANTE));
     }
 
     @Test
-    @DisplayName("CT-PD-04: Tipo nulo deve lançar IllegalArgumentException")
+    @DisplayName("CT-PD-04: Tipo nulo deve lançar IllegalArgumentException [PE]")
     void tipoNuloLancaExcecao() {
         assertThrows(IllegalArgumentException.class, () -> regras.prazoDias(null));
     }
