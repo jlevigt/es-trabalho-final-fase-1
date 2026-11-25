@@ -17,9 +17,9 @@ A suíte de testes foi concebida por técnicas rigorosas de **Partição de Equi
 
 ## 📁 Estrutura dos Arquivos de Entrega
 
-- [`src/test/java/br/edu/biblioteca/RegrasBibliotecaTest.java`](src/test/java/br/edu/biblioteca/RegrasBibliotecaTest.java): Suíte de testes com **91 casos de teste** em JUnit 5 cobrindo exaustivamente os 7 métodos de `RegrasBiblioteca`.
+- [`src/test/java/br/edu/biblioteca/`](src/test/java/br/edu/biblioteca/): Suíte de testes com **86 casos de teste** em JUnit 5 organizados em arquivos dedicados por método (`PrazoDiasTest.java`, `DataDevolucaoTest.java`, `LimiteEmprestimosTest.java`, `MultaCentavosTest.java`, `PodeEmprestarTest.java`, `PodeRenovarTest.java`, `MultaTotalCentavosTest.java`).
 - [`PLANO-DE-TESTES.md`](PLANO-DE-TESTES.md): Mapeamento formal de cada método com suas classes de equivalência (válidas e inválidas), fronteiras de limites e rastreabilidade dos casos de teste (`CT-PD-xx` a `CT-MT-xx`).
-- [`DEFEITOS.md`](DEFEITOS.md): Registro das **34 falhas reveladas**, seguindo estritamente o formato de *uma linha por falha* (Método, Entrada, Resultado Esperado, Resultado Obtido e Classe/Limite).
+- [`DEFEITOS.md`](DEFEITOS.md): Registro das **31 falhas reveladas**, seguindo estritamente o formato de *uma linha por falha* (Método, Entrada, Resultado Esperado, Resultado Obtido e Classe/Limite).
 - [`USO-DE-IA.md`](USO-DE-IA.md): Relatório de transparência sobre o uso de assistentes de IA generativa, detalhando solicitações, conteúdo aproveitado e refinamentos conceituais aplicados pela equipe.
 - [`SLIDES-APRESENTACAO.md`](SLIDES-APRESENTACAO.md): Slides da apresentação da Fase 1 em formato Markdown (compatível com Marp).
 - [`slides.html`](slides.html): Apresentação interativa em HTML/CSS/JS (100% responsiva e navegável offline com setas do teclado).
@@ -39,9 +39,9 @@ mvn clean test
 
 ### Resultados Esperados:
 ```text
-Total de testes executados: 91
-Testes em conformidade:     57
-Falhas esperadas (defeitos): 34
+Total de testes executados: 86
+Testes em conformidade:     55
+Falhas esperadas (defeitos): 31
 Resultado final do build:   BUILD SUCCESS (testFailureIgnore ativado)
 ```
 
