@@ -4,6 +4,12 @@
 **Instituição:** Instituto Federal de Educação, Ciência e Tecnologia do Ceará (IFCE)  
 **Entrega:** Fase 1 — Teste Caixa-Preta (Partição de Equivalência e Análise de Valor-Limite)  
 **Data:** 24 de novembro de 2026  
+**Integrantes** 
+Cyntia Lissa Andrade Bezerra
+Levi Guedes Teles
+Tiago de Oliveira Endo Marques
+
+
 
 ---
 
